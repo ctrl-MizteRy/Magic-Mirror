@@ -12,9 +12,9 @@ class Start_Speaking:
         current_time = datetime.now().hour
         text = ""
         match current_time:
-            case 5 |6 |7 |8 |9 |10 |11:
+            case x if 5 <= x <= 11:
                 text = f"Good {tod[0]} {self.name}"
-            case 12 |13 |14 |15 |16 |17:
+            case x if 12 <= x <= 17:
                 text = f"Good {tod[1]} {self.name}"
             case _:
                 text = f"Good {tod[2]} {self.name}"
@@ -36,9 +36,10 @@ class Start_Speaking:
         else:
             raise TypeError("File name must be saved in form mp3 or wav")
 
+    #check to make sure the nae of the file is correct for 'mp3' insince playsound will not accept anything other than a mp3 file
     def check_file(self, file_name: str) -> bool:
         file = file_name.split(".")[-1]
-        return file == "mp3"
+        return file == "mp3" 
     
     def speak(self, file_name:str) -> None:
         if self.check_file(file_name):
