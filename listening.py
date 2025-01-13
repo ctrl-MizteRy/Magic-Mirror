@@ -55,7 +55,7 @@ class Listening:
             print(status, file=sys.stderr)
         self.q.put(indata.copy())
 
-    def start_listen(self, duration: int) -> str: #Using '7s' for 7s listening duration and others for 2s duration for now
+    def start_listen(self, duration: int) -> str: #Using duration to change the setting based on user preferrence of how long you want the machine to record your speech
         try:
             if self.args.samplerate is None:
                 device_info = sd.query_devices(self.args.device, 'input')
@@ -78,11 +78,11 @@ class Listening:
             self.parser.exit(type(e).__name__ + ': ' + str(e))
 
     def duration(self, start, file: sf.SoundFile, duration: int) -> None:
-        while int(time.time()) - start <= duration:
+        while int(time.time()) - start <= duration: #using time.time() as a count down timmer for the duration
             file.write(self.q.get())
     
     def translate_to_text(self) -> str:
-        if not os.path.exists("vosk-model-en-us-0.22-lgraph"):
+        if not os.path.exists("vosk-model-en-us-0.22-lgraph"): #You can definitely use a different model here if you want, just follow the link before for it
             return "Please download the model from https://alphacephei.com/vosk/models and unpack as 'model' in the current folder."
         wf = wave.open(self.args.filename, "rb")
         if wf.getnchannels() != 1 or wf.getsampwidth() != 2 or wf.getcomptype() != "NONE":
