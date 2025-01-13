@@ -22,7 +22,8 @@ class Magic_Mirror:
         self.known_people_encoding = self.trainer.get_people_encoding()
         mp_hands = mp.solutions.hands
         self.hands = mp_hands.Hands()
-        
+
+        #By using this, we could make the start up time faster and cv2 won't have to wait for the other classes to get their API request
         with ThreadPoolExecutor() as executor:
             futures = {
                 executor.submit(self.init_calendar): "calendar",
@@ -97,7 +98,7 @@ class Magic_Mirror:
             self.cam.release()
             cv.destroyAllWindows()
 
-    def listening(self, sec: int) -> set:
+    def listening(self, sec: int) -> set: #returning set for a faster time of string comparision
         while True:
             self.speak.speak("voice_records/start_listen.mp3")
             respone = self.listen.start_listen(sec)
@@ -105,7 +106,7 @@ class Magic_Mirror:
                 self.speak.speak("voice_records/no_message.mp3")
                 ans = self.listen.start_listen(2)
                 ans = set(ans.split(" "))
-                if 'yes' in ans or 'yes' in ans:
+                if 'yes' in ans or 'Yes' in ans:
                     continue
                 else:
                     return {}
@@ -123,7 +124,7 @@ class Magic_Mirror:
                     self.speak.speak('voice_records/hourly_weather.mp3')
                 elif 'next' in respone or 'days' in respone:
                     self.speak.speak('voice_records/next_7_days_weather.mp3')
-            elif ('calendar' in respone or 'schedule' in respone) and self.name:
+            elif ('calendar' in respone or 'schedule' in respone) and self.name: #checking for self.name so that an unknown person couldn't not get access to the calendar events, you can implement different set of name here if you want.
                 if 'today' in respone:
                     self.speak.speak('voice_records/today_schedules.mp3')
                 elif 'next' in respone or 'week' in respone:
@@ -133,13 +134,14 @@ class Magic_Mirror:
         self.cam.release()
         self.cam = cv.VideoCapture(0)
 
+    #Using schedule to update the data at a certain time for a faster respone time from gTTS text-to-speech
     def automatic_schedule(self):
         schedule.every().hour.do(self.weather.report_hourly_weather)
         schedule.every().day.at("00:00").do(self.calendar.today_events)
         schedule.every().day.at("00:05").do(self.calendar.tomorrow_events)
         schedule.every().day.at("00:10").do(self.calendar.next_7_days)
         schedule.every(30).minutes.do(self.weather.report_current_weather)
-        schedule.every().day.at("03:00").do(self.weather.next_7_days_report)
+        schedule.every().day.at("00:20").do(self.weather.next_7_days_report)
         schedule.every(15).minutes.do(self.update_current_weather)
         schedule.every().day.at("00:25").do(self.update_7_days_weather)
         schedule.every().day.at("00:01").do(self.update_today_cal)
@@ -167,6 +169,3 @@ class Magic_Mirror:
 
     def init_calendar(self):
         return Google_Cal()
-
-if __name__ == "__main__":
-    main = Magic_Mirror()
