@@ -18,12 +18,11 @@ class Face_Encoding:
             reference_img = fc.load_image_file(img)
             if reference_img is None or reference_img.size == 0:
                 print(f"Couldn't load {img}")
-                raise ValueError("Couldn't load img")
             else:
                 encoding = fc.face_encodings(reference_img)[0]
                 self._know_face_encoding.append(encoding)
         except IndexError:
-            with open('Error_img.txt', 'a') as file:
+            with open('Error_img.txt', 'a') as file: # This will give you a list of img that could not be use to train for face_recognition datas
                 file.write(f"Couldn't read/encoing {img}")
         except Exception as e:
             print(f"An Exception was found with {img}: {e}")
